@@ -1,9 +1,5 @@
 deployment:
   version: 2
   tasks:
-    - deploy:
-        user: ameoconbantuongt
-        group: ameoconbantuongt
-        dir: public_html
-        repository: https://github.com/Mink2k4/CodeMCBTT.git
-        branch: main
+    - export DEPLOYPATH=/home/ameoconbantuongt/public_html
+    - /bin/rsync -av --exclude='.git' ./ $DEPLOYPATH
