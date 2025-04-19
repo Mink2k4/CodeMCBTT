@@ -1,5 +1,0 @@
-deployment:
-  version: 2
-  tasks:
-    - export DEPLOYPATH=/home/ameoconbantuongt/public_html
-    - /bin/rsync -av --exclude='.git' ./ $DEPLOYPATH
