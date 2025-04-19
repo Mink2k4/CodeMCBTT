@@ -1,0 +1,439 @@
+@extends('Layout.App')
+@section('title', $social->name . ' ' . $service->name)
+
+@section('content')
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div>
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link d-flex active" data-bs-toggle="tab" href="#create-order" role="tab"
+                                    aria-selected="true">
+                                    <span><i class="ti ti-basket fs-4"></i>
+                                    </span>
+                                    <span class="d-none d-md-block ms-2">Tạo đơn</span>
+                                </a>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <a class="nav-link d-flex" data-bs-toggle="tab" href="#profile2" role="tab"
+                                    aria-selected="false" tabindex="-1">
+                                    <span><i class="ti ti-history-toggle fs-4"></i>
+                                    </span>
+                                    <span class="d-none d-md-block ms-2">Lịch sử đơn</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <!-- Tab panes -->
+                        <hr>
+                        <div class="tab-content">
+                            <div class="tab-pane active show" id="create-order" role="tabpanel">
+                                <div class="p-3">
+                                    <h3 class="mb-3">Tạo đơn mới</h3>
+                                    <div class="mb-3">
+                                        <form action="{{ route('api.service.order', ['social' => $social->slug, 'service' => $service->slug]) }}" method="POST" request="lbd">
+                                            <div class="form-group mb-3">
+                                                <label for="" class="form-label">Link đơn hàng:</label>
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control border border-info text-info" name="link_order"
+                                                        placeholder="Link đơn hàng">
+                                                    <label for="">
+                                                        <i class="ti ti-basket fs-4 text-info"></i>
+                                                        <span class="border-start border-info ps-2">
+                                                            Nhập link đơn hàng
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="" class="form-label">Máy chủ:</label>
+                                                @foreach ($server as $item)
+                                                    <div class="form-check">
+                                                        <input type="radio" id="serverserrvice{{ $item->server }}" class="form-check-input"
+                                                            min="{{ $item->min }}" max="{{ $item->max }}" onchange="bill()"
+                                                            name="server_service" value="{{ $item->server }}" price="{{ priceServer($item->id, Auth::user()->level) }}"
+                                                            detail="{{ $item->description }}" action="{{ $item->action }}">
+                                                        <label for="serverserrvice{{ $item->server }}" class="form-check-label">
+                                                            <span class="fw-semibold">Máy chủ {{ $item->server }}: </span>
+                                                            ({{ $item->title }})
+                                                            <b class="text-success">{{ priceServer($item->id, Auth::user()->level) }}đ</b>
+                                                            @if ($item->status == 'Active')
+                                                                <span class="badge bg-primary rounded-pill">Hoạt động</span>
+                                                            @else
+                                                                <span class="badge bg-danger rounded-pill">Bảo trì</span>
+                                                            @endif
+                                                        </label>
+                                                    </div>
+                                                @endforeach
+                                                <div class="mt-2">
+                                                    <div id="details"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label for="" class="form-label">Cảm xúc:</label>
+                                                <div class="curoder-pointer">
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction0">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="101" id="reaction0" name="reaction"
+                                                                value="like" checked=""><img
+                                                                src="/assets/images/reaction/like.png" alt="image"
+                                                                class="d-block ml-2 rounded-circle" width="35">
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction1">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="100" id="reaction1" name="reaction"
+                                                                value="love"><img src="/assets/images/reaction/love.png"
+                                                                alt="image" class="d-block ml-2 rounded-circle"
+                                                                width="35">
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction2">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="100" id="reaction2" name="reaction"
+                                                                value="care"><img src="/assets/images/reaction/care.png"
+                                                                alt="image" class="d-block ml-2 rounded-circle"
+                                                                width="35">
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction3">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="100" id="reaction3" name="reaction"
+                                                                value="haha"><img src="/assets/images/reaction/haha.png"
+                                                                alt="image" class="d-block ml-2 rounded-circle"
+                                                                width="35">
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction4">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="100" id="reaction4" name="reaction"
+                                                                value="wow"><img src="/assets/images/reaction/wow.png"
+                                                                alt="image" class="d-block ml-2 rounded-circle"
+                                                                width="35">
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction6">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="100" id="reaction6" name="reaction"
+                                                                value="sad"><img src="/assets/images/reaction/sad.png"
+                                                                alt="image" class="d-block ml-2 rounded-circle"
+                                                                width="35">
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <label class="form-check-label " for="reaction7">
+                                                            <input class="form-check-input checkbox d-none" type="radio"
+                                                                data-prices="100" id="reaction7" name="reaction"
+                                                                value="angry"><img
+                                                                src="/assets/images/reaction/angry.png" alt="image"
+                                                                class="d-block ml-2 rounded-circle" width="35">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="" class="form-label">Số lượng: <div id="data-quantity">
+                                                    </div></label>
+                                                <div class="form-floating">
+                                                    <input type="text" class="form-control border border-info text-info"
+                                                        onkeyup="bill()" name="quantity" placeholder="Số lượng">
+                                                    <label for="">
+                                                        <i class="ti ti-aperture fs-4 text-info"></i>
+                                                        <span class="border-start border-info ps-2">
+                                                            Nhập số lượng
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label for="" class="form-label">Ghi chú:</label>
+                                                <div class="form-floating">
+                                                    <textarea class="form-control border border-info text-info" name="note" rows="7" placeholder="Số lượng"></textarea>
+                                                    <label for="">
+                                                        <i class="ti ti-notebook fs-4 text-info"></i>
+                                                        <span class="border-start border-info ps-2">
+                                                            Nhập ghi chú (nếu cần)
+                                                        </span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="alert bg-success text-center">
+                                                    <h4 class="text-white">Tổng thanh toán: <span id="total_payment"
+                                                            class="text-primary fw-semibold">0</span> VNĐ</h4>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4">
+                                                <button type="submit" class="btn btn-primary col-12 btn-lg" show="Bạn có chắc chắn muốn tạo đơn hàng này không?">
+                                                    <i class="ti ti-shopping-cart"></i>
+                                                    <span class="ms-2">Tạo đơn mới</span>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane p-3" id="profile2" role="tabpanel">
+                                <h3>Lịch sử đơn</h3>
+                                <div class="mb-3">
+                                    <div class="table-responsive">
+                                        <div id="" class="dataTables_wrapper w-100 overflow-x-auto overflow-y-hidden">
+                                            <table id="history-order"
+                                                class="table border table-striped table-bordered display text-nowrap dataTable responsive w-100"
+                                                aria-describedby="file_export_info">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Thao tác</th>
+                                                        <th>Thời gian</th>
+                                                        <th>Link đơn</th>
+                                                        <th>Máy chủ</th>
+                                                        <th>Số lượng</th>
+                                                        <th>Bắt đầu</th>
+                                                        <th>Đã tăng</th>
+                                                        <th>Cảm xúc</th>
+                                                        <th>Giá</th>
+                                                        <th>Tổng thanh toán</th>
+                                                        <th>Ghi chú</th>
+                                                        <th>Trạng thái</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <div id="bs-example-modal-md" class="modal fade" tabindex="-1" aria-labelledby="bs-example-modal-md"
+        style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header d-flex align-items-center">
+                    <h4 class="modal-title" id="myModalLabel">
+                        Chi tiết đơn hàng #<span id="order_id"></span>
+                    </h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="p-3">
+                        <p class="text-primary mb-2">Chi tiết thanh toán</p>
+                        Số tiền đã thanh toán : <span id="payment-lbd" class="text-danger fw-semibold">0</span> VNĐ
+                    </div>
+                    <div class="p-3 mb-5">
+                        <p class="text-primary mb-2">Dòng thời gian</p>
+                        <ul class="timeline-widget mb-0 position-relative mb-n5">
+                        </ul>
+                    </div>
+                    <div class="p-3">
+                        <p class="text-primary mb-2">Chi tiết đơn hàng</p>
+                        <ul>
+                            <li class="p-1 text-start">Link: <span id="order_link"></span></li>
+                            <li class="p-1">Số lượng: <span id="order_quantity"></span></li>
+                            <li class="p-1">Bắt đầu: <span id="order_start"></span></li>
+                            <li class="p-1">Còn lại: <span id="order_buff"></span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light-danger text-danger font-medium waves-effect"
+                        data-bs-dismiss="modal">
+                        Đóng
+                    </button>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+@endsection
+@section('script')
+    <script>
+         function showDetail(server_order) {
+            var detail = server_order.attr('detail');
+            if (!detail) return;
+            
+            var detailArray = detail.split('\n');
+            
+            var html = `
+                <div class="alert bg-warning text-white fw-semibold">
+                    ${detailArray.map(function (item) {
+                        return `
+                            <div>${item}</div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            $('#details').html(html);
+        }
+
+        function bill() {
+            var server_service = $('input[name="server_service"]:checked');
+            var price = server_service.attr('price');
+            var detail = server_service.attr('detail');
+            var min = server_service.attr('min');
+            var action = server_service.attr('action');
+            actionType(action);
+            var max = server_service.attr('max');
+            var seerver = server_service.val();
+            var quantity = $('input[name="quantity"]').val();
+            // hiện detail nếu click vào radio
+            showDetail(server_service);
+            if (!seerver) return;
+            $('#data-quantity').html(`Tối thiểu: ${formatNumber(min)} - Tối đa: ${formatNumber(max)}`).addClass('text-danger');
+            var total_payment = Math.round(price * quantity) ?? 0;
+            $('#total_payment').html(formatNumber(total_payment));
+        }
+        $(document).ready(function() {
+            bill();
+        })
+
+        function showModal(id) {
+                $('#bs-example-modal-md').modal('show');
+                $('#order_id').html(id);
+                $.ajax({
+                    url: `{{ route('service.get.order') }}`,
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    dataType: 'json',
+                    success: function(data) {
+                        if (data.status == 'success') {
+                            var order = data.data;
+                            $('#order_link').html(order.order_link);
+                            $('#order_quantity').html(formatNumber(order.quantity));
+                            $('#order_start').html(formatNumber(order.start));
+                            $('#order_buff').html(formatNumber(order.buff));
+
+                        $('#payment-lbd').html(formatNumber(order.total_payment));
+
+                        // xoá dữ liệu cũ
+                        $('.timeline-widget').html('');
+
+                            /* map */
+                            var history = JSON.parse(order.history);
+                            history.forEach(function(item) {
+                                var html = `
+                                    <li class="timeline-item d-flex position-relative overflow-hidden">
+                                        <div class="timeline-time text-dark flex-shrink-0 text-end">${item.time}</div>
+                                        <div class="timeline-badge-wrap d-flex flex-column align-items-center">
+                                            <span class="timeline-badge border-2 border border-${item.status} flex-shrink-0 my-8"></span>
+                                            <span class="timeline-badge-border d-block flex-shrink-0"></span>
+                                        </div>
+                                        <div class="timeline-desc fs-3 text-dark mt-n1">${item.title}</div>
+                                    </li>
+                                `;
+                                $('.timeline-widget').append(html);
+                            })
+                        } else {
+                            $('#bs-example-modal-md').modal('hide');
+                        }
+                    },
+                    error: function() {
+                        toastr.error('Lỗi hệ thống, vui lòng thử lại sau');
+                    }
+                })
+
+            }
+
+        createDataTable('#history-order', '{{ route('user.order.action', ['social' => $service->service_social, 'action' => $service->slug]) }}', [{
+                data: 'id'
+            },
+            {
+                data: null,
+                render: function(data, type, row) {
+                    return `
+                          <div class="btn-group">
+                            <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Thao tác
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="javascript:;" onclick="showModal('${row.id}')">Xem chi tiết</a></li>
+                                <li><a class="dropdown-item" href="javascript:;" onclick="orderRefund('${row.id}')">Hủy đơn</a></li>
+                                <li><a class="dropdown-item" href="javascript:;" onclick="orderWarranty('${row.id}')">Bảo hành</a></li>
+                            </ul>
+                        </div>
+                    `;
+                }
+            },
+            {
+                data: 'created_at'
+            },
+            {
+                data: 'order_link',
+            },
+            {
+                data: 'server_service',
+            }, {
+                data: 'quantity',
+                render: function(data, type, row) {
+                    return formatNumber(data);
+                }
+            },
+            {
+                data: 'start',
+                render: function(data, type, row) {
+                    return formatNumber(data);
+                }
+            },
+            {
+                data: 'buff',
+                render: function(data, type, row) {
+                    return formatNumber(data);
+                }
+            }, {
+                data: null,
+                render: function(data, type, row) {
+                    return JSON.parse(row.action).reaction
+                }
+            },
+            {
+                data: 'price',
+                render: function(data, type, row) {
+                    return `
+                        <span class="text-danger fw-semibold">${formatNumber(data)}</span>
+                    `;
+                }
+            },
+            {
+                data: 'total_payment',
+                render: function(data, type, row) {
+                    return `
+                        <div class="alert bg-success text-white fw-semibold">
+                            ${formatNumber(data)} VNĐ
+                        </div>
+                    `;
+                }
+            },
+            {
+                data: 'note',
+                render: function(data, type, row) {
+                    return data
+                }
+            }, {
+                data: 'status_order',
+                render: function(data, type, row) {
+                    return data
+                }
+            }
+        ])
+    </script>
+@endsection
